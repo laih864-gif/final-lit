@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Still Lit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="scene" aria-label="流动的灯">
+    <div id="lamps"></div>
+    <button id="info-button" type="button" aria-expanded="false" aria-controls="info-panel">Info</button>
+    <div id="info-overlay" hidden>
+      <section id="info-panel" role="dialog" aria-modal="true" aria-label="Project info" tabindex="-1">
+        <h1>Still Lit</h1>
+        <p>Still Lit begins with a collection of lamps found across the city. Each lamp carries a different form, color, and way of giving light, but its meaning extends beyond the object itself. A light can suggest that someone is home, invite us to stop, mark the passing of time, or quietly change how a place feels. Switch on the page and explore the floating lamps: some transform the background through color, while others reveal fragments of writing about design, space, and belonging. Together, they ask us to notice how light becomes part of everyday life—and what it means for something to remain lit.</p>
+      </section>
+    </div>
+    <button id="light-switch" type="button" role="switch" aria-checked="false" aria-label="打开灯">
+      <img id="switch-image" src="images/switch-off.png" alt="">
+    </button>
+    <section id="story-panel" hidden aria-live="polite"><h1 id="story-title"></h1><p id="story-text"></p></section>
+    <span id="status" class="sr-only" aria-live="polite">灯已关闭</span>
+  </main>
+  <script src="hit-masks.js"></script>
+  <script src="lamps.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
