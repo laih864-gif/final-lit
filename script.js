@@ -162,7 +162,40 @@ scene.addEventListener('pointermove', event => {
 });
 scene.addEventListener('pointerleave', () => { pointer = null; clearFocus(); });
 window.addEventListener('blur', () => { pointer = null; clearFocus(); });
-lightSwitch.addEventListener('click', () => setPower(!isOn));
+// 用户点击时合成短促机械开关声，无需额外音频文件。
+let switchAudio = null;
+function playSwitchClick(on) {
+  try {
+    const AudioEngine = window.AudioContext || window.webkitAudioContext;
+    if (!AudioEngine) return;
+    switchAudio ||= new AudioEngine();
+    const ctx = switchAudio;
+    const sound = () => {
+      const start = ctx.currentTime;
+      const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .045), ctx.sampleRate);
+      const samples = buffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * .006));
+      const noise = ctx.createBufferSource(); noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 900;
+      const gain = ctx.createGain(); gain.gain.value = .22;
+      noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      noise.start(start);
+      const tone = ctx.createOscillator(); tone.type = 'triangle';
+      tone.frequency.setValueAtTime(on ? 1250 : 950, start);
+      tone.frequency.exponentialRampToValueAtTime(280, start + .025);
+      const envelope = ctx.createGain();
+      envelope.gain.setValueAtTime(.075, start);
+      envelope.gain.exponentialRampToValueAtTime(.001, start + .035);
+      tone.connect(envelope); envelope.connect(ctx.destination);
+      tone.start(start); tone.stop(start + .04);
+      noise.onended = () => { noise.disconnect(); filter.disconnect(); gain.disconnect(); };
+      tone.onended = () => { tone.disconnect(); envelope.disconnect(); };
+    };
+    if (ctx.state === 'suspended') ctx.resume().then(sound).catch(() => {});
+    else if (ctx.state === 'running') sound();
+  } catch (_) { /* 音频不可用时，开关继续正常工作。 */ }
+}
+lightSwitch.addEventListener('click', () => { playSwitchClick(!isOn); setPower(!isOn); });
 window.addEventListener('resize', renderLamps);
 reducedMotion.addEventListener('change', renderLamps);
 lamps.forEach(lamp => lamp.image.addEventListener('load', renderLamps));
